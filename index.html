@@ -1,0 +1,37 @@
+<head>
+</head>
+<body>
+  <script src="jquery.js"></script>
+  <script src="mockme.js"></script>
+  <script>
+    MockMe.endPoints({
+      "users": {
+        id: MockMe.randomID("987654321aAbBeEgG"),
+        name: MockMe.randomName(),
+        year: MockMe.randomInteger(1960,2000),
+        isDirector: MockMe.randomBoolean()
+      },
+      "users/data" : {
+        company: MockMe.randomID("987654321"),
+        employees: MockMe.randomInteger(2,40),
+        capitalization: MockMe.randomCurrency(300,4000)
+      }
+    });
+
+    $.ajax({
+      url: "https://httpbin.org/users",
+      method: "GET",
+      success: function(d) {
+        console.log("Ajax cb", d);
+      }
+    });
+
+    $.ajax({
+      url: "https://httpbin.org/users/data",
+      method: "GET",
+      success: function(d) {
+        console.log("Ajax cb", d);
+      }
+    });
+  </script>
+</body>
