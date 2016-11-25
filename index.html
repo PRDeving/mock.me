@@ -1,37 +1,61 @@
 <head>
 </head>
 <body>
-  <script src="jquery.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
+  <script
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
   <script src="mockme.js"></script>
   <script>
     MockMe.endPoints({
-      "users": {
-        id: MockMe.randomID("987654321aAbBeEgG"),
-        name: MockMe.randomName(),
-        year: MockMe.randomInteger(1960,2000),
-        isDirector: MockMe.randomBoolean()
+      "angular/get": {
+        boolean: MockMe.boolean(),
       },
-      "users/data" : {
-        company: MockMe.randomID("987654321"),
-        employees: MockMe.randomInteger(2,40),
-        capitalization: MockMe.randomCurrency(300,4000)
+      "angular/post": {
+        name: MockMe.name(),
+      },
+      "jquery/config": {
+        answer: MockMe.number(),
+      },
+      "jquery/callback": {
+        answer: MockMe.money(),
+      },
+      "jquery/promise": {
+        answer: MockMe.id(),
+      },
+    });
+
+    angular.module("app", [])
+      .run(['$http', function($http) {
+        $http.get('http://s1.api.com/angular/get')
+          .then(function(ans) {
+            console.log("angular get promise:", ans, !!ans);
+          });
+
+        $http.post('http://s1.api.com/angular/post')
+          .then(function(ans) {
+            console.log("angular post promise:", ans, !!ans);
+          });
+
+      }]);
+    angular.bootstrap(document, ['app']);
+
+    $.ajax('http://s1.api.com/jquery/promise')
+      .then(function(ans) {
+        console.log("js ajax promise:", ans, !!ans);
+      });
+
+    $.ajax('http://s1.api.com/jquery/callback', function(ans) {
+        console.log("js ajax simple callback:", ans, !!ans);
+      });
+
+    $.ajax({
+      url: 'http://s1.api.com/jquery/config',
+      success: function(ans) {
+        console.log("js ajax config:", ans, !!ans);
       }
     });
 
-    $.ajax({
-      url: "https://httpbin.org/users",
-      method: "GET",
-      success: function(d) {
-        console.log("Ajax cb", d);
-      }
-    });
-
-    $.ajax({
-      url: "https://httpbin.org/users/data",
-      method: "GET",
-      success: function(d) {
-        console.log("Ajax cb", d);
-      }
-    });
   </script>
 </body>

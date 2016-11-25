@@ -1,10 +1,22 @@
+### Important
+
+this library has been updated in Nov 2016, it's actually a v2, all methods for creating mock data from v1 are deprecated
+
 # mock.me
 Define endpoints and its responses, mocks.me will intercept ajax calls and return the mocked data instead making the call
 
 # How does it work?
-Actually mock.me intercepts all $.ajax that has 'success' as argument, defined next way, Mock.me doesn't intercepts any other
-kind of XHR calls, it will eventually.
 
+define the endpoints to mock
+```javascript
+    MockMe.endPoints({
+        "api/users": {
+            name: "John Doe",
+            age: 21
+        }
+    })
+```
+do your calls as usual
 ```javascript
     $.ajax({
         url: "http://myrealdomain.com/api/users",
@@ -15,17 +27,7 @@ kind of XHR calls, it will eventually.
     })
 ```
 
-mock endpoints are defined like this:
-```javascript
-    MockMe.endPoints({
-        "api/users": {
-            name: "John Doe",
-            age: 21
-        }
-    })
-```
-
-when any ajax call tries to call any endpoint with the "api/users" path like http://myrealdomain.com/api/users, Mock.me
+when any call tries to reach any endpoint with the "api/users" path like http://myrealdomain.com/api/users, Mock.me
 will intercept the call and serve the mock instead, in this case the answer would be:
 ```json
     {name: "John Doe", age: 21}
@@ -33,48 +35,102 @@ will intercept the call and serve the mock instead, in this case the answer woul
 
 Endpoints that doesnt has a Mock defined will be called normally.
 
+# Support
+Mock.me supports JQuery ajax calls and angularJS $http requests, it answers via callback or promise depending on the way the calls
+are done.
+
+```javascript
+
+    // in angular, it will return a promise
+    $http.get('...')
+      .then(function(ans) {
+        console.log("angular get promise:", ans, !!ans);
+      });
+
+    // This will return a promise too
+    $.ajax('...')
+      .then(function(ans) {
+        // ...
+      });
+
+    // this will fire the callback
+    $.ajax('...', function(ans) {
+        // ...
+      });
+
+    // this will fire the success callback fn
+    $.ajax({
+      url: 'http://s1.api.com/jquery/config',
+      success: function(ans) {
+        console.log("js ajax config:", ans, !!ans);
+      }
+
+```
+
 #Methods
 There are mock methods to serve random data.
 
-## MockMe.randomID(String str, Integer n)
-returns and String formed by n characters from str
+## MockMe.id(String str, Integer n)
+returns an String formed by n characters from str
 ```javascript
-    MockMe.randomID("987654321abcd", 10);
+    MockMe.id()
+    // "1584b744" (n == 8, str == default)
+
+    MockMe.id(10);
+    // "908tj293uh (str == default);
+
+    MockMe.id("987654321abcd");
+    // "1584b744" (n == 8)
+
+    MockMe.id("987654321abcd", 10);
     // "1584b8a744"
 ```
-## MockMe.randomName()
+## MockMe.name()
 returns a random name and surname in a String
 ```javascript
-    MockMe.randomName();
+    MockMe.name();
     // "John Doe"
 ```
-## MockMe.randomInteger(Integer min, Integer max)
+## MockMe.number(Integer min, Integer max)
 returns an Integer between min and max
 ```javascript
-    MockMe.randomInteger(0,4);
-    // 3
+    MockMe.number();
+    // 832 ( 0 -> 1000)
+
+    MockMe.number(4);
+    // 82 ( 4 -> 1000)
+
+    MockMe.number(0,4);
+    // 3 (0 -> 4)
 ```
-## MockMe.randomBoolean()
+## MockMe.booolean()
 returns true or false
 
 ## MockMe.randomCurrency(Integer min, Integer max)
 returns a Float with two decimals
 ```javascript
-    MockMe.randomCurrency(40, 3000);
-    // 1583.21
+    MockMe.money();
+    // 158.31 (0 -> 1000);
+
+    MockMe.money(40);
+    // 583.10 (40 -> 1000);
+
+    MockMe.money(40, 3000);
+    // 1583.21 (40 -> 3000);
+
 ```
 
 #Demo
 ```javascript
     MockMe.endPoints({
         "user/permissions": {
-            canEdit: MockMe.randomBoolean(),
-            canSee: MockMe.randomBoolean()
+            canEdit: MockMe.boolean(),
+            canSee: MockMe.boolean()
         },
         "user/data": {
-            name: MockMe.randomName(),
-            budget: MockMe.randomCurrency(3000,5000),
-            points: MockMe.randomInteger(10,50)
+            name: MockMe.name(),
+            budget: MockMe.money(3000,5000),
+            points: MockMe.number(10,50)
         }
     });
 
@@ -88,23 +144,16 @@ returns a Float with two decimals
         }
     });
 
-    $.ajax({
-        url: "http://mydomain.com/user/companies",
-        method: "GET",
-        success: function(d){
+    $.ajax("http://mydomain.com/user/companies")
+        .then(function(d){
             console.log(d);
             // prints data from real endpoint
-        }
-    });
+        });
 
-    $.ajax({
-        url: "http://mydomain.com/user/data",
-        method: "GET",
-        success: function(d){
+    $.ajax("http://mydomain.com/user/data")
+        .then(function(d){
             console.log(d);
-            // Mocked response
-            // {name: "Anne Black", budget: 4172.50, points: 31}
-        }
-    });
+            // prints mocked data
+        });
 ```
 
